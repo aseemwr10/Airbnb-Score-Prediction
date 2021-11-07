@@ -312,6 +312,13 @@ na_count <- na_count %>% mutate(total = nrow(airbnb_clean), per_na = na_count/to
 #Text Analysis
 
 ##access
+
+library(foreach)
+library(doParallel)
+
+cl <- makeCluster(6)
+registerDoParallel(cl)
+
 bing_score <- foreach(i = 1:nrow(airbnb_clean), .combine=c) %dopar% {
   print(i)
   tokens <- data_frame(text = airbnb_clean$access[i]) %>% unnest_tokens(word, text)
@@ -611,7 +618,7 @@ Afinn_Score <- foreach(i = 1:nrow(airbnb_clean), .combine=c) %dopar% {
   return(afinn_val)
 }
 airbnb_clean$Afinn_Score_transit <- Afinn_Score
-
+stopCluster(cl)
 
 detach("package:MASS", unload=TRUE)
 # needed if we want to use tidyverse package
